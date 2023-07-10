@@ -1,22 +1,14 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Empoyee.Model;
 using System.ComponentModel.DataAnnotations;
 
-namespace Empoyee.Model
+namespace Empoyees.Dtos
 {
-    public class Employee
+    public class EmployeeCreateDto
     {
-
-        [StringLength(11)]
-        [Required]
-        [Key]
-        public string Id { get; set; }
-
         [Required]
         public string Name { get; set; }
         [Required]
         public string Surname { get; set; }
-
         [StringLength(11)]
         public string Manager { get; set; }
     }

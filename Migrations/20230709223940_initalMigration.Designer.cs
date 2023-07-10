@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Empoyees.Migrations
 {
     [DbContext(typeof(EmployeeContext))]
-    [Migration("20230709205431_initalMigration")]
+    [Migration("20230709223940_initalMigration")]
     partial class initalMigration
     {
         /// <inheritdoc />
@@ -27,10 +27,8 @@ namespace Empoyees.Migrations
             modelBuilder.Entity("Empoyee.Model.Employee", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasMaxLength(11)
-                        .HasColumnType("nvarchar(11)")
-                        .HasDefaultValueSql("dbo.GenerateRandomId(11)");
+                        .HasColumnType("nvarchar(11)");
 
                     b.Property<string>("EmployeeId")
                         .HasColumnType("nvarchar(11)");

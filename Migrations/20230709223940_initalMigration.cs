@@ -14,7 +14,7 @@ namespace Empoyees.Migrations
                 name: "Employees",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false, defaultValueSql: "dbo.GenerateRandomId(11)"),
+                    Id = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Surname = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Manager = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: true),

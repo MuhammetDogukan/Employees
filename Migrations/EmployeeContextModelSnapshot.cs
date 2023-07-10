@@ -24,10 +24,8 @@ namespace Empoyees.Migrations
             modelBuilder.Entity("Empoyee.Model.Employee", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasMaxLength(11)
-                        .HasColumnType("nvarchar(11)")
-                        .HasDefaultValueSql("dbo.GenerateRandomId(11)");
+                        .HasColumnType("nvarchar(11)");
 
                     b.Property<string>("EmployeeId")
                         .HasColumnType("nvarchar(11)");

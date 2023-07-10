@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Empoyee.Model;
 using Empoyees.Data;
+using Empoyees.Dtos;
+using AutoMapper;
 
 namespace Empoyees.Controllers
 {
@@ -15,8 +17,7 @@ namespace Empoyees.Controllers
     public class EmployeesController : ControllerBase
     {
         private readonly EmployeeContext _context;
-
-        public EmployeesController(EmployeeContext context)
+        public EmployeesController(EmployeeContext context, IMapper mapper)
         {
             _context = context;
         }
@@ -26,10 +27,14 @@ namespace Empoyees.Controllers
         public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees()
         {
             var employees = await _context.Employees.ToListAsync();
+            var rootEmployees = employees.Where(e => e.Manager == null).ToList();
+            var result = new List<object>();
 
-            var rootEmployees = employees.Where(e => e.Manager == null);
-
-            var result = rootEmployees.Select(e => GetEmployeeWithSubordinates(e));
+            foreach (var rootEmployee in rootEmployees)
+            {
+                var employeeWithSubordinates = GetEmployeeWithSubordinates(rootEmployee, employees);
+                result.Add(employeeWithSubordinates);
+            }
 
             return Ok(result);
         }
@@ -38,15 +43,12 @@ namespace Empoyees.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Employee>> GetEmployee(string id)
         {
-            var employee = await _context.Employees
-                .Include(e => e.Subordinate)
-                .Include(e => e.Manager)
-                .FirstOrDefaultAsync(e => e.Id == id);
-
-            if (employee == null)
+            var rootEmployee = await _context.Employees.FindAsync(id);
+            if (rootEmployee == null)
                 return NotFound();
 
-            var result = GetEmployeeWithSubordinates(employee);
+            var employees = await _context.Employees.ToListAsync();
+            var result = GetEmployeeWithSubordinates(rootEmployee, employees);
 
             return Ok(result);
         }
@@ -61,6 +63,13 @@ namespace Empoyees.Controllers
                 return BadRequest();
             }
 
+            if (employee.Manager != null)
+            {
+                var manager = await _context.Employees.FindAsync(employee.Manager);
+                if (manager == null)
+                    return NotFound("The specified manager couldn't be found.");
+            }
+            
             _context.Entry(employee).State = EntityState.Modified;
 
             try
@@ -84,28 +93,21 @@ namespace Empoyees.Controllers
 
         // POST: api/Employees
         [HttpPost]
-        public async Task<ActionResult<Employee>> PostEmployee(Employee employee)
+        public async Task<ActionResult<Employee>> PostEmployee(EmployeeCreateDto employeeCreateDto)
         {
+            Employee employee = new()
+            {
+                Id = Guid.NewGuid().ToString("N").Substring(0, 11),
+                Name = employeeCreateDto.Name,
+                Surname = employeeCreateDto.Surname,
+                Manager = employeeCreateDto.Manager,
+            };
+
             if (employee.Manager != null)
             {
-                var manager = await _context.Employees.FindAsync(employee.Manager);
+                var manager =await _context.Employees.FindAsync(employee.Manager);
                 if (manager == null)
                     return NotFound("The specified manager couldn't be found.");
-
-                manager.Subordinate.Add(employee);
-                await _context.SaveChangesAsync();
-
-            }
-            if (employee.Subordinate != null)
-            {
-                var subordinate = await _context.Employees.FindAsync(employee.Subordinate);
-                if (subordinate == null)
-                    return NotFound("The specified subotinate couldn't be found.");
-                if (subordinate.Manager!=null)
-                    return NotFound("the specified subotinate already has a manager.");
-
-                subordinate.Manager =employee.Id;
-
             }
 
             _context.Employees.Add(employee);
@@ -118,41 +120,52 @@ namespace Empoyees.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEmployee(string id)
         {
+            
             var employee = await _context.Employees.FindAsync(id);
+
+            
             if (employee == null)
             {
                 return NotFound();
             }
-            //herhangi bir yöneticinin sorumlu olduğu kısımdaysa ordan çıkarmak için
-            var subordinatOf= await _context.Employees.SingleOrDefaultAsync(e => e.Manager == employee.Id);
-            if (subordinatOf != null)
+
+            //herhangi bir çalışanların yöneticisi ise onlara null atar
+            /*
+            var employees = await _context.Employees.ToListAsync();
+            var managerOf = employees.Where(e => e.Manager == employee.Id).ToList(); 
+            foreach (var item in managerOf)
             {
-                subordinatOf.Subordinate.Remove(employee);
-                await _context.SaveChangesAsync();
-            }
-            //Silinen çalışanın sorumlu olduğu kişileri yöneticisine atamak için
-            /*    
-            var manager = await _context.Employees.FindAsync(employee.Manager);
-            foreach (var item in employee.Subordinate)
-            {
-                manager.Subordinate.Add(item);
+                item.Manager = null;
+                _context.Entry(item).State = EntityState.Modified;
             }
             */
-            
+
+            //herhangi bir çalışanların yöneticisi ise onlara kendi yöneticisini atar
+            /*
+            var employees = await _context.Employees.ToListAsync();
+            var managerOf = employees.Where(e => e.Manager == employee.Id).ToList(); 
+            foreach (var item in managerOf)
+            {
+                item.Manager = employee.Manager;
+                _context.Entry(item).State = EntityState.Modified;
+            }
+            */
 
             _context.Employees.Remove(employee);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
-        private object GetEmployeeWithSubordinates(Employee employee)
+        private object GetEmployeeWithSubordinates(Employee employee, List<Employee> allEmployees)
         {
             var result = new
             {
-                employee.Id,
-                employee.Name,
-                employee.Surname,
-                Subordinates = employee.Subordinate.Select(e => GetEmployeeWithSubordinates(e))
+                Id = employee.Id,
+                Name = employee.Name,
+                Surname = employee.Surname,
+                Subordinates = allEmployees
+            .Where(e => e.Manager == employee.Id)
+            .Select(e => GetEmployeeWithSubordinates(e, allEmployees))
             };
 
             return result;
