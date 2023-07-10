@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Empoyee.Model;
-using Empoyees.Dtos;
+using Employees.Dtos;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
-namespace Empoyees.Profiles
+namespace Employees.Profiles
 {
     public class EmployeeProfiles : Profile
     {

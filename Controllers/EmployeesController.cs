@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Empoyee.Model;
-using Empoyees.Data;
-using Empoyees.Dtos;
+using Employees.Data;
+using Employees.Dtos;
 using AutoMapper;
 
-namespace Empoyees.Controllers
+namespace Employees.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

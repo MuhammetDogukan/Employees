@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Empoyees": {
+    "Employees": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",

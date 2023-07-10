@@ -1,7 +1,7 @@
 ﻿using Empoyee.Model;
 using System.ComponentModel.DataAnnotations;
 
-namespace Empoyees.Dtos
+namespace Employees.Dtos
 {
     public class EmployeeCreateDto
     {
