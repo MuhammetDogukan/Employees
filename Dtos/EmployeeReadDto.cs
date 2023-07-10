@@ -6,7 +6,6 @@ namespace Empoyees.Dtos
     public class EmployeeReadDto
     {
         public string Id { get; set; }
-        public string Name { get; set; }
         public string Surname { get; set; }
         public string Manager { get; set; }
     }
