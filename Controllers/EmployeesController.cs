@@ -27,7 +27,7 @@ namespace Employees.Controllers
         public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees()
         {
             var employees = await _context.Employees.ToListAsync();
-            var rootEmployees = employees.Where(e => e.Manager == null).ToList();
+            var rootEmployees = employees.Where(e => e.Manager == 0).ToList();
             var result = new List<object>();
 
             foreach (var rootEmployee in rootEmployees)
@@ -55,15 +55,15 @@ namespace Employees.Controllers
 
         // PUT: api/Employees/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutEmployee(string id, Employee employee)
+        public async Task<IActionResult> PutEmployee(int id, Employee employee)
         {
 
-            if (id != employee.Id)
+            if (id != employee.EmployeeId)
             {
                 return BadRequest();
             }
 
-            if (employee.Manager != null)
+            if (employee.Manager != 0)
             {
                 var manager = await _context.Employees.FindAsync(employee.Manager);
                 if (manager == null)
@@ -78,7 +78,7 @@ namespace Employees.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (_context.Employees.Any(e => e.Id == id))
+                if (_context.Employees.Any(e => e.EmployeeId == id))
                 {
                     return NotFound();
                 }
@@ -95,15 +95,16 @@ namespace Employees.Controllers
         [HttpPost]
         public async Task<ActionResult<Employee>> PostEmployee(EmployeeCreateDto employeeCreateDto)
         {
+            Random rnd = new Random();
             Employee employee = new()
             {
-                Id = Guid.NewGuid().ToString("N").Substring(0, 11),
+                EmployeeId = new Int32(),
                 Name = employeeCreateDto.Name,
                 Surname = employeeCreateDto.Surname,
                 Manager = employeeCreateDto.Manager,
             };
 
-            if (employee.Manager != null)
+            if (employee.Manager != 0)
             {
                 var manager =await _context.Employees.FindAsync(employee.Manager);
                 if (manager == null)
@@ -113,7 +114,7 @@ namespace Employees.Controllers
             _context.Employees.Add(employee);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetEmployee), new { id = employee.Id }, employee);
+            return CreatedAtAction(nameof(GetEmployee), new { id = employee.EmployeeId }, employee);
         }
 
         // DELETE: api/Employees/{id}
@@ -132,7 +133,7 @@ namespace Employees.Controllers
             //herhangi bir çalışanların yöneticisi ise onlara null atar
             /*
             var employees = await _context.Employees.ToListAsync();
-            var managerOf = employees.Where(e => e.Manager == employee.Id).ToList(); 
+            var managerOf = employees.Where(e => e.Manager == employee.EmployeeId).ToList(); 
             foreach (var item in managerOf)
             {
                 item.Manager = null;
@@ -140,16 +141,16 @@ namespace Employees.Controllers
             }
             */
 
-            //herhangi bir çalışanların yöneticisi ise onlara kendi yöneticisini atar
-            /*
+            
+            
             var employees = await _context.Employees.ToListAsync();
-            var managerOf = employees.Where(e => e.Manager == employee.Id).ToList(); 
+            var managerOf = employees.Where(e => e.Manager == employee.EmployeeId).ToList(); 
             foreach (var item in managerOf)
             {
                 item.Manager = employee.Manager;
                 _context.Entry(item).State = EntityState.Modified;
             }
-            */
+            
 
             _context.Employees.Remove(employee);
             await _context.SaveChangesAsync();
@@ -160,11 +161,11 @@ namespace Employees.Controllers
         {
             var result = new
             {
-                Id = employee.Id,
+                Id = employee.EmployeeId,
                 Name = employee.Name,
                 Surname = employee.Surname,
                 Subordinates = allEmployees
-            .Where(e => e.Manager == employee.Id)
+            .Where(e => e.Manager == employee.EmployeeId)
             .Select(e => GetEmployeeWithSubordinates(e, allEmployees))
             };
 

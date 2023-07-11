@@ -6,7 +6,7 @@ namespace Employees.Dtos
     public class EmployeeUpdateDto
     {
         [Required]
-        public string Name { get; set; }
+        public int Name { get; set; }
         [Required]
         public string Surname { get; set; }
         public List<Employee> Subordinate { get; set; }

@@ -9,7 +9,7 @@ namespace Employees.Dtos
         public string Name { get; set; }
         [Required]
         public string Surname { get; set; }
-        [StringLength(11)]
-        public string Manager { get; set; }
+        
+        public int Manager { get; set; }
     }
 }

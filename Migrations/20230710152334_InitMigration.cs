@@ -5,7 +5,7 @@
 namespace Employees.Migrations
 {
     /// <inheritdoc />
-    public partial class initalMigration : Migration
+    public partial class InitMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -14,26 +14,16 @@ namespace Employees.Migrations
                 name: "Employees",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false),
+                    EmployeeId = table.Column<int>(type: "int", maxLength: 11, nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Surname = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Manager = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: true),
-                    EmployeeId = table.Column<string>(type: "nvarchar(11)", nullable: true)
+                    Manager = table.Column<int>(type: "int", maxLength: 11, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Employees", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Employees_Employees_EmployeeId",
-                        column: x => x.EmployeeId,
-                        principalTable: "Employees",
-                        principalColumn: "Id");
+                    table.PrimaryKey("PK_Employees", x => x.EmployeeId);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Employees_EmployeeId",
-                table: "Employees",
-                column: "EmployeeId");
         }
 
         /// <inheritdoc />
