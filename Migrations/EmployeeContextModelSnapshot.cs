@@ -26,13 +26,11 @@ namespace Employees.Migrations
                 {
                     b.Property<int>("EmployeeId")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(11)
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmployeeId"));
 
-                    b.Property<int?>("Manager")
-                        .HasMaxLength(11)
+                    b.Property<int?>("ManagerId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -45,7 +43,23 @@ namespace Employees.Migrations
 
                     b.HasKey("EmployeeId");
 
+                    b.HasIndex("ManagerId");
+
                     b.ToTable("Employees");
+                });
+
+            modelBuilder.Entity("Empoyee.Model.Employee", b =>
+                {
+                    b.HasOne("Empoyee.Model.Employee", "Manager")
+                        .WithMany("Subordinates")
+                        .HasForeignKey("ManagerId");
+
+                    b.Navigation("Manager");
+                });
+
+            modelBuilder.Entity("Empoyee.Model.Employee", b =>
+                {
+                    b.Navigation("Subordinates");
                 });
 #pragma warning restore 612, 618
         }

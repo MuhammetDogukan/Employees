@@ -17,7 +17,11 @@ namespace Empoyee.Model
         [Required]
         public string Surname { get; set; }
 
-        [ForeignKey(nameof(Employee))]
-        public int Manager { get; set; }
+        [ForeignKey("Manager")]
+        public int? ManagerId { get; set; }
+
+        public virtual Employee Manager { get; set; }
+
+        public ICollection<Employee> Subordinates { get; set; }
     }
 }

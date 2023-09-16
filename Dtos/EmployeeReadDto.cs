@@ -5,8 +5,8 @@ namespace Employees.Dtos
 {
     public class EmployeeReadDto
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string Surname { get; set; }
-        public string Manager { get; set; }
+        public int? ManagerId { get; set; }
     }
 }

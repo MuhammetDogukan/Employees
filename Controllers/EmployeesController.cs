@@ -27,7 +27,7 @@ namespace Employees.Controllers
         public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees()
         {
             var employees = await _context.Employees.ToListAsync();
-            var rootEmployees = employees.Where(e => e.Manager == 0).ToList();
+            var rootEmployees = employees.Where(e => e.ManagerId == null).ToList();
             var result = new List<object>();
 
             foreach (var rootEmployee in rootEmployees)
@@ -41,7 +41,7 @@ namespace Employees.Controllers
 
         // GET: api/Employees/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Employee>> GetEmployee(string id)
+        public async Task<ActionResult<Employee>> GetEmployee(int id)
         {
             var rootEmployee = await _context.Employees.FindAsync(id);
             if (rootEmployee == null)
@@ -63,9 +63,9 @@ namespace Employees.Controllers
                 return BadRequest();
             }
 
-            if (employee.Manager != 0)
+            if (employee.ManagerId != null)
             {
-                var manager = await _context.Employees.FindAsync(employee.Manager);
+                var manager = await _context.Employees.FindAsync(employee.ManagerId);
                 if (manager == null)
                     return NotFound("The specified manager couldn't be found.");
             }
@@ -101,12 +101,12 @@ namespace Employees.Controllers
                 EmployeeId = new Int32(),
                 Name = employeeCreateDto.Name,
                 Surname = employeeCreateDto.Surname,
-                Manager = employeeCreateDto.Manager,
+                ManagerId = employeeCreateDto.ManagerId,
             };
 
-            if (employee.Manager != 0)
+            if (employee.ManagerId != null)
             {
-                var manager =await _context.Employees.FindAsync(employee.Manager);
+                var manager =await _context.Employees.FindAsync(employee.ManagerId);
                 if (manager == null)
                     return NotFound("The specified manager couldn't be found.");
             }
@@ -144,10 +144,10 @@ namespace Employees.Controllers
             
             
             var employees = await _context.Employees.ToListAsync();
-            var managerOf = employees.Where(e => e.Manager == employee.EmployeeId).ToList(); 
+            var managerOf = employees.Where(e => e.ManagerId == employee.EmployeeId).ToList(); 
             foreach (var item in managerOf)
             {
-                item.Manager = employee.Manager;
+                item.ManagerId = employee.ManagerId;
                 _context.Entry(item).State = EntityState.Modified;
             }
             
@@ -165,7 +165,7 @@ namespace Employees.Controllers
                 Name = employee.Name,
                 Surname = employee.Surname,
                 Subordinates = allEmployees
-            .Where(e => e.Manager == employee.EmployeeId)
+            .Where(e => e.ManagerId == employee.EmployeeId)
             .Select(e => GetEmployeeWithSubordinates(e, allEmployees))
             };
 
